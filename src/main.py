@@ -7,12 +7,14 @@ import pandas as pd
 
 
 def main():
-   tool = CrashAnalysis.TextAnalysis()
+   tool = CrashAnalysis.TextAnalysis('./data/Crashes.csv')
+   # tool.get_customer_descriptions_by_version('2016040014')
+   # vocab_frame = tool.create_vocab_frame()
+   # get_term_frequencies(tool, vocab=vocab_frame)
+   tool.frequency('2016040014')
 
-   tool.read_csv('./data/Crashes.csv')
-   tool.get_customer_descriptions_by_version('2016040014')
-   vocab_frame = tool.create_vocab_frame()
-   get_term_frequencies(tool, vocab=vocab_frame)
+   model = tool.lda('2016040014')
+   tool.print_topics(model)
 
    #
 
@@ -65,22 +67,6 @@ def top_terms_per_cluster(frame, km, num_clusters, vocab_frame, terms):
 
    print()
    print()
-
-
-def get_term_frequencies(tool, top_k=30, vocab=None):
-   tool.preprocess()
-   freq_count = tool.frequency_count()
-
-   sortedFreq = []
-
-   for w in sorted(freq_count, key=freq_count.get, reverse=True):
-      sortedFreq.append((w, freq_count[w]))
-
-   for i in range(min(top_k, len(sortedFreq))):
-      if type(vocab) is not type(None):
-         print(sortedFreq[i], vocab.ix[sortedFreq[i][0]].values.tolist()[:6])
-      else:
-         print(sortedFreq[i])
 
 
 if __name__ == '__main__':
