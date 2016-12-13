@@ -2,22 +2,38 @@ from __future__ import print_function
 
 import CrashAnalysis
 
-from sklearn.externals import joblib
-import pandas as pd
-
 
 def main():
-   tool = CrashAnalysis.TextAnalysis('./data/Crashes.csv')
+   tool = CrashAnalysis.TextAnalysis('./data/Crashes1.csv')
    # tool.get_customer_descriptions_by_version('2016040014')
    # vocab_frame = tool.create_vocab_frame()
    # get_term_frequencies(tool, vocab=vocab_frame)
-   tool.frequency('2016040014')
+   pro_name = 'ProSeries - 2016'
+   basic_name = 'ProSeries Basic Edition - 2016'
 
-   model = tool.lda('2016040014')
-   tool.print_topics(model)
-
+   # print(pro_name)
+   # tool.frequency('2016040014', product_id=pro_name, top=50)
+   # model = tool.lda('2016040014', product_id=pro_name, num_topics=10)
+   # tool.print_topics(model, num_words=10)
    #
+   # print()
+   # print(basic_name)
+   # tool.frequency('2016040014', product_id=basic_name, top=50)
+   #
+   # model = tool.lda('2016040014', product_id=basic_name, num_topics=10)
+   # tool.print_topics(model, num_words=10)
 
+   vocab, sortedFreq = tool.frequency('2016040014')
+
+   err_codes = tool.find_error_codes(vocab, sortedFreq, tool.read_csv('./data/Crashes1.csv'))
+
+   print('ERROR CODES')
+   for word, count in sortedFreq:
+      print(word)
+      print(err_codes[word][err_codes[word] > 2])
+
+      if count < 7:
+         break
 
    # mx, terms = tool.vectorize_corpus()
    #

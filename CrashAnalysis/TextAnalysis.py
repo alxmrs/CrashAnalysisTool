@@ -46,8 +46,8 @@ class TextAnalysis:
       """
       pass
 
-   def frequency(self, version=None, top=30):
-      customer_desc_df = self.get_customer_descriptions_by_version(version=version)
+   def frequency(self, version=None, product_id=None, top=30):
+      customer_desc_df = self.get_customer_descriptions_by_version(version=version, product_id=product_id)
       vocab = self.create_vocab_frame(customer_desc_df)
       processed_df = self.preprocess(customer_desc_df)
 
@@ -58,6 +58,7 @@ class TextAnalysis:
       for w in sorted(freq_count, key=freq_count.get, reverse=True):
          sortedFreq.append((w, freq_count[w]))
 
+      print('total words: ' + str(total))
       for i in range(min(top, len(sortedFreq))):
          if type(vocab) is not type(None):
             print('{0:10} : {1:4} \t {2}'.format(sortedFreq[i][0], sortedFreq[i][1],
@@ -65,14 +66,48 @@ class TextAnalysis:
          else:
             print('{0:10} : {1:4}'.format(sortedFreq[i][0], sortedFreq[i][1]))
 
-   def lda(self, version=None, num_topics=5, recompute=False):
+      return vocab, sortedFreq
 
-      cache_model_name = 'lda_model_t{0}.pkl'.format(num_topics)
+   def find_error_codes(self, vocab, sortedFreq, df, min_count=7):
+      error_code_map = dict()
 
+      for word, count in sortedFreq:
+
+         adjacent_terms = set([val[0] for val in vocab.ix[word].get_values()])
+         term_df = df[df['Customer_Description'].str.contains(word, case=False, na=False)]
+
+         for adj in adjacent_terms:
+            term_df = term_df.add(df[df['Customer_Description'].str.contains(adj, case=False, na=False)])
+
+         error_code_map[word] = term_df.Error_Code.value_counts()
+
+         if count < min_count:
+            break
+
+      return error_code_map
+
+
+
+   def lda(self, version=None, product_id=None, num_topics=5, recompute=False, multicore=True):
+
+      # create cache model name
+      cache_model_name = 'lda_model_t{0}'.format(num_topics)
+
+      if version:
+         cache_model_name += '_v{0}'.format(version)
+
+      if product_id:
+         cache_model_name += '_pid{0}'.format(''.join(re.split(r'\W', product_id)))
+
+      cache_model_name += '.pkl'
+
+      # load existing model
       if not recompute and os.path.isfile('./' + cache_model_name):
          lda = models.LdaModel.load(cache_model_name, mmap='r')
+
+      # (re)compute model
       else:
-         working_df = self.get_customer_descriptions_by_version(version)
+         working_df = self.get_customer_descriptions_by_version(version, product_id=product_id)
 
          preprocessed_df = self.preprocess(working_df, compose(self.__strip_proper_POS, self.__tokenize_and_stem))
 
@@ -81,8 +116,13 @@ class TextAnalysis:
 
          corpus = [dictionary.doc2bow(text) for text in preprocessed_df]
 
-         lda = models.LdaModel(corpus, num_topics=num_topics, id2word=dictionary, update_every=5,
-                               chunksize=10000, passes=1000)
+         if multicore:
+            lda = models.LdaMulticore(corpus, num_topics=num_topics, id2word=dictionary,
+                                      chunksize=10000, passes=1000)
+         else:
+
+            lda = models.LdaModel(corpus, num_topics=num_topics, id2word=dictionary, update_every=5,
+                                  chunksize=10000, passes=1000)
 
          print('saving model as ' + cache_model_name)
          lda.save(cache_model_name)
@@ -93,26 +133,24 @@ class TextAnalysis:
       topics_matrix = lda_model.show_topics(formatted=False, num_words=num_words)
       # topics_matrix = np.array(topics_matrix)
 
-
-
       for topic in topics_matrix:
          print ('topic ' + str(topic[0]))
          print(', '.join([word_tuple[0] + ' : ' + str(word_tuple[1]) for word_tuple in topic[1]]))
 
-
-
-
-   def get_customer_descriptions_by_version(self, version=None):
+   def get_customer_descriptions_by_version(self, version=None, product_id=None):
       """
       A temporary method to get the customer descriptions by a specific version. If no version string is specified,
       this method will return all the customer description.
       :param version: (optional) specify release version. If not specified, will default to every version
       :return: customer data dataframe
       """
+      working_df = self.df['Customer_Description']
+
       if version:
-         working_df = self.df['Customer_Description'][self.df.Version == version]
-      else:
-         working_df = self.df['Customer_Description']
+         working_df = working_df[self.df.Version == version]
+
+      if product_id:
+         working_df = working_df[self.df.Product == product_id]
 
       return working_df
 
@@ -129,8 +167,8 @@ class TextAnalysis:
       if not map:
          map = self.__tokenize_and_stem
 
-      # remove rows that have no data, i.e NaN
-      nonempty_df = self.__remove_empty(working_df)
+      # remove or fill rows that have no data, i.e NaN
+      nonempty_df = self.__fill_empty(working_df)
 
       # Map each remaining row to stemmed tokens
       processed_df = nonempty_df.apply(map)
