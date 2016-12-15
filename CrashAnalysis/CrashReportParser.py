@@ -1,51 +1,67 @@
 import datetime
-import pandas
+import pandas as pd
 import xml.etree.ElementTree as etree
+from glob import glob
 
 class CrashReportParser:
    def __init__(self):
       pass
 
    def xmldocs_to_dataframe(self, xml_dir):
+      """
+      Converts xml documents to a Pandas Dataframe
+      :param xml_dir: Takes in a directory that has xml files
+      :return: A pd.DataFrame with the information from each xml file as a row
+      """
       # map xml files in dir to list of strings
-      xml_strs = []
+      xml_files = glob(xml_dir + '**/*.xml')
+
+      trees = [self._xml_to_tree(xml_file) for xml_file in xml_files]
 
       # map xml_strs to single dataframe
-      df = self._xml_to_dataframe(xml_strs)
+      df = self._trees_to_dataframe(trees)
 
       return df
 
-   def _xml_to_string(self, filepath):
-      pass
+   def _xml_to_tree(self, xml_filename):
+      """
+      Opens an xml file, converts it to a python ElementTree object, returns the root of the tree
+      :param xml_filename: xml file to parse
+      :return: root of the xml tree
+      """
+      with open(xml_filename, 'r') as xml_file:
+         # read the data and store it as a tree
+         tree = etree.parse(xml_file)
 
-   def _xml_to_dataframe(self, xml_list):
-      # Copied for gist online: https://gist.github.com/tlmaloney/3349402
-      ''' Takes a list of XML strings and turns it into a dataframe '''
-      # Get the header
-      xml_str = xml_list[0]
-      root = etree.fromstring(xml_str)
-      header = self._extract_position_names(root)
-      scenario_data = {}
-      for position_name in header:
-         scenario_data[position_name] = []
+         # get tree root
+         return tree.getroot()
 
-      for xml_str in xml_list:
-         scenario = etree.fromstring(xml_str)
-         positions = scenario[4]
-         for position in positions:
-            position_size = (position.text).replace(',', '')
-            scenario_data[position.get('id')].append(float(position_size))
+   def _trees_to_dataframe(self, roots):
+      """
+      Converts a list of ElementTree trees into a pd.DataFrame
+      :param roots: list of ElementTree roots
+      :return: a pd.DataFrame with each root representing a row
+      """
+      return pd.DataFrame(list(self._parse_etrees(roots)))
 
-      # Get dates
-      scenario_dates = []
-      for element in xml_list:
-         scenario = etree.fromstring(element)
-         date_string = scenario[1].text
-         date = datetime.datetime.strptime(date_string, '%Y%m%d')
-         scenario_dates.append(date)
 
-      dataframe = pandas.DataFrame(scenario_data, index=scenario_dates)
-      return dataframe
+   def _parse_etrees(self, roots):
+      """
+      A generator function that parses the ElementTree and converts it to a dictionary.
+      :param roots: roots to process
+      :return: A data dictionary, one row at a time
+      """
+      for root in roots:
 
-   def _extract_position_names(self, root):
-      pass
+         data_dict = {}
+
+         for node in root:
+
+            if '\n' not in node.text:
+               data_dict[node.tag] = node.text
+
+            else:
+               for var in node:
+                  data_dict[var.attrib['name']] = var.attrib['value'] if 'value' in var.attrib else var.attrib['description']
+
+         yield data_dict

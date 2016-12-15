@@ -10,7 +10,7 @@ from nltk.tag import pos_tag
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
 from sklearn.externals import joblib
-from gensim import corpora, models, similarities
+from gensim import corpora, models
 
 
 # TODO [ ] convert to pure functions

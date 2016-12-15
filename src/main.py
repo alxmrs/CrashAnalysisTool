@@ -7,11 +7,17 @@ def main():
 
    crash_file = './data/Crashes2.csv'
    pro_v_basic = False
-   total = True
+   total = False
+   parse_xml = True
    force_recompute = False
    tool = CrashAnalysis.TextAnalysis(crash_file)
 
 
+   if parse_xml:
+      xml_parser = CrashAnalysis.CrashReportParser()
+      xml_df = xml_parser.xmldocs_to_dataframe('/Users/arosengarten/Documents/CrashAnalysis/src/data/')
+
+      print(xml_df)
 
 
    if pro_v_basic:
