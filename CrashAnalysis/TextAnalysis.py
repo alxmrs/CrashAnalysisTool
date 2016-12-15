@@ -22,7 +22,7 @@ class TextAnalysis:
       self.working_df = None
 
       if type(file_or_dataframe) is type('test'):
-         self.df = self.read_csv(file_or_dataframe)
+         self.df = self.read_csv(file_or_dataframe).copy()
       elif type(file_or_dataframe) is pd.DataFrame:
          self.df = file_or_dataframe
       else:
@@ -47,7 +47,7 @@ class TextAnalysis:
       pass
 
    def frequency(self, version=None, product_id=None, top=30):
-      customer_desc_df = self.get_customer_descriptions_by_version(version=version, product_id=product_id)
+      customer_desc_df = self.get_customer_descriptions(version=version, product_id=product_id)
       vocab = self.create_vocab_frame(customer_desc_df)
       processed_df = self.preprocess(customer_desc_df)
 
@@ -107,7 +107,7 @@ class TextAnalysis:
 
       # (re)compute model
       else:
-         working_df = self.get_customer_descriptions_by_version(version, product_id=product_id)
+         working_df = self.get_customer_descriptions(version, product_id=product_id)
 
          preprocessed_df = self.preprocess(working_df, compose(self.__strip_proper_POS, self.__tokenize_and_stem))
 
@@ -137,20 +137,27 @@ class TextAnalysis:
          print ('topic ' + str(topic[0]))
          print(', '.join([word_tuple[0] + ' : ' + str(word_tuple[1]) for word_tuple in topic[1]]))
 
-   def get_customer_descriptions_by_version(self, version=None, product_id=None):
+   def get_customer_descriptions(self, version=None, product_id=None):
       """
       A temporary method to get the customer descriptions by a specific version. If no version string is specified,
       this method will return all the customer description.
       :param version: (optional) specify release version. If not specified, will default to every version
       :return: customer data dataframe
       """
-      working_df = self.df['Customer_Description']
+      filtered_df = self.filter_crash_df(self.df, version, product_id)
+
+      working_df = filtered_df['Customer_Description']
+
+      return working_df
+
+   def filter_crash_df(self, df, version=None, product_id=None):
+      working_df = df.copy()
 
       if version:
-         working_df = working_df[self.df.Version == version]
+         working_df = working_df[working_df.Version == version]
 
       if product_id:
-         working_df = working_df[self.df.Product == product_id]
+         working_df = working_df[working_df.Product == product_id]
 
       return working_df
 
