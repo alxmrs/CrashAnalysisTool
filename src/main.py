@@ -43,9 +43,20 @@ def main():
           dtype='object')
       '''
 
+      xml_df['CrashGUID'] = xml_df['CrashGUID'].apply(lambda x: str(x) + '.zip')
+
+      print(xml_df[:10])
+
       # print(xml_df.fillna(' ').groupby(['InstallType', 'WorkStationType', 'OperatingSystem'])['SystemTimeUTC'].count())
       # print(xml_df.fillna(' ').groupby('InstallType')['ExceptionAddress'].apply(lambda x: '9be7' in x))
 
+      oldcols = list(tool.df.columns)
+      oldcols[5] = 'CrashGUID'
+      tool.df.columns = oldcols
+
+      total_df = pd.merge(xml_df, tool.df, on='CrashGUID')
+
+      print(total_df.columns)
 
 
 
