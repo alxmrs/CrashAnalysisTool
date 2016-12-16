@@ -115,9 +115,10 @@ class CrashReportParser:
 
             # depth-first search through nodes, adding to dictionary
             for node in iterator:
-               if node.text and '\n' not in node.text:
-                  data_dict[node.tag] = node.text
-               elif 'name' in node.attrib:
+               if 'name' in node.attrib:
                   data_dict[node.attrib['name']] = node.attrib['value'] if 'value' in node.attrib else node.attrib['description']
+               else:
+                  data_dict[node.tag] = node.text
+
 
             yield data_dict

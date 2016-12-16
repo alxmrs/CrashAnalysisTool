@@ -6,90 +6,112 @@ import CrashAnalysis
 def main():
    pd.set_option('display.height', 5000)
    pd.set_option('display.max_rows', 5000)
+   pd.options.display.max_colwidth = 250
 
-   crash_file = 'C:\\Dev\\CrashAnalysis\\src\\data\\Crashes2.csv'
-   pro_v_basic = False
-   total = False
-   lda = False
-   force_recompute = False
-   parse_xml = True
-   extract_zipfiles = False
-   tool = CrashAnalysis.TextAnalysis(crash_file)
+   _crash_file = 'C:\\Dev\\CrashAnalysis\\src\\data\\Crashes3.csv'
+   _pro_v_basic = False
+   _total = False
+   _lda = False
+   _force_recompute = False
+   _extract_zipfiles = False
+   _parse_xml = True
+   _merge_tables = True  # dependent on parse_xml
+   _merge_tables_text_analysis = True
 
 
-   if extract_zipfiles:
+   tool = CrashAnalysis.TextAnalysis(_crash_file)
+
+
+   if _extract_zipfiles:
       xml_parser = CrashAnalysis.CrashReportParser()
       xml_parser.extract_zipfiles('C:\\CrashReports\\')
 
-   if parse_xml:
+   if _parse_xml:
       xml_parser = CrashAnalysis.CrashReportParser()
       xml_df = xml_parser.xmldocs_to_dataframe('C:\\CrashReports\\')
 
-      # print(xml_df['InstallType'][:10])
-      print(xml_df.columns)
-      '''
-          Index([u'ACCDT_Field', u'Active_ClientFileName', u'Active_Field',
-          u'Active_Form', u'Active_FormsetID', u'Active_FormsetVersion',
-          u'AppName', u'AppVersion', u'BasWin16.INI', u'Batch_ClientFileName',
-          u'CrashGUID', u'Current_Calcsection', u'CustNum', u'DataFileCount',
-          u'ExceptionAddress', u'ExceptionCode', u'ExceptionModule',
-          u'ExceptionModuleBase', u'ExceptionModuleVersion', u'ExceptionType',
-          u'FormsPrinter', u'GUIResourceCount', u'GeoLocation', u'ImageName',
-          u'InstallType', u'Last_Calcsection', u'ManagedException.txt',
-          u'MemoryUsageKbytes', u'OSIs64Bit', u'OpenHandleCount',
-          u'OperatingSystem', u'ProWin16.INI', u'ProblemDescription',
-          u'SystemTimeUTC', u'WorkStationName', u'WorkStationType',
-          u'crashdump.dmp', u'crashrpt.xml'],
-          dtype='object')
-      '''
+
+
+
+   if _merge_tables:
 
       xml_df['CrashGUID'] = xml_df['CrashGUID'].apply(lambda x: str(x) + '.zip')
-
-      print(xml_df[:10])
-
-      # print(xml_df.fillna(' ').groupby(['InstallType', 'WorkStationType', 'OperatingSystem'])['SystemTimeUTC'].count())
-      # print(xml_df.fillna(' ').groupby('InstallType')['ExceptionAddress'].apply(lambda x: '9be7' in x))
-
       oldcols = list(tool.df.columns)
       oldcols[5] = 'CrashGUID'
       tool.df.columns = oldcols
 
       total_df = pd.merge(xml_df, tool.df, on='CrashGUID')
+      total_df = total_df.drop_duplicates('Record ID#')
 
       print(total_df.columns)
 
 
 
-   if pro_v_basic:
+   if _merge_tables_text_analysis:
+      analysis = CrashAnalysis.TextAnalysis(total_df)
+
+      ## Customer Description Analysis
+      # print('total customer descriptions: ' + str(total_df['Customer_Description'].dropna(how='any').count()))
+      vocab, sortedFreq = analysis.frequency('2016040014', print_output=False, top=50)
+
+      ## Error and StackTrace Analysis
+      field = 'Message'
+      hist = total_df[field].fillna(' ').value_counts()
+      total = sum(total_df[field].fillna(' ').value_counts()[1:])
+      print(hist)
+      print(total)
+      #
+      # ## Customer System Environment
+      # print(xml_df.fillna(' ').groupby(['InstallType', 'WorkStationType', 'OperatingSystem'])['SystemTimeUTC'].count())
+      # print(sum(xml_df.fillna(' ').groupby(['InstallType', 'WorkStationType', 'OperatingSystem'])['SystemTimeUTC'].count()))
+      # # print(xml_df.fillna(' ').groupby('InstallType')['ExceptionAddress'].apply(lambda x: '9be7' in x))
+
+      ## Bug 1: External component has thrown an exception.
+      bug1_msgs = [hist.index[i] for i in [1, 3, 9]]
+      bug1_df_list = [total_df[total_df.Message == msg].drop_duplicates('Record ID#') for msg in bug1_msgs]
+      bug1_df = pd.concat(bug1_df_list, axis=0)
+      # bug1_df = total_df[total_df.Message == bug1_msg].drop_duplicates('Record ID#')
+
+      # print(bug1_df['Customer_Description'].dropna(how='any'))
+      # print(bug1_df['CustNum'].value_counts())
+      # print(bug1_df['StackTrace'].value_counts())
+
+      ## Bug 2: Method not found: 'Int32 System.Runtime.InteropServices.Marshal.SizeOf(!!0)'.
+      # bug2_msg = hist.index[2]
+      # print(bug2_msg)
+      # bug2_df = total_df[total_df.Message == bug2_msg].drop_duplicates('Record ID#')
+      # print(bug2_df['Customer_Description'].dropna(how='any'))
+      # print(bug2_df['CustNum'].value_counts())
+      # print(bug2_df['StackTrace'].value_counts())
+
+
+   if _pro_v_basic:
       pro_name = 'ProSeries - 2016'
       basic_name = 'ProSeries Basic Edition - 2016'
       print(pro_name)
       tool.frequency('2016040014', product_id=pro_name, top=50)
-      if lda:
-         model = tool.lda('2016040014', product_id=pro_name, recompute=force_recompute, num_topics=10)
+      if _lda:
+         model = tool.lda('2016040014', product_id=pro_name, recompute=_force_recompute, num_topics=10)
          tool.print_topics(model, num_words=10)
 
       print()
       print(basic_name)
       tool.frequency('2016040014', product_id=basic_name, top=50)
 
-      if lda:
-         model = tool.lda('2016040014', product_id=basic_name, recompute=force_recompute, num_topics=10)
+      if _lda:
+         model = tool.lda('2016040014', product_id=basic_name, recompute=_force_recompute, num_topics=10)
          tool.print_topics(model, num_words=10)
 
-
-   if total:
+   if _total:
 
       vocab, sortedFreq = tool.frequency('2016040014', print_output=False, top=50)
 
-      print(tool.get_columns())
-
-      if lda:
-         model = tool.lda('2016040014', recompute=force_recompute, num_topics=10)
+      if _lda:
+         model = tool.lda('2016040014', recompute=_force_recompute, num_topics=10)
          tool.print_topics(model, num_words=10)
 
 
-      err_codes = tool.group_by_vocab(vocab, sortedFreq, tool.df, field='Payload')
+      err_codes = tool.group_by_vocab(vocab, sortedFreq, tool.df, field='CrashGUID')
 
       print('Error Codes by Keyterm')
       for word, count in sortedFreq:
@@ -122,6 +144,7 @@ def main():
    # # tool.label_frame_with_clusters(clusters)
    #
    # top_terms_per_cluster(new_df, km, n_custers, vocab_frame, terms)
+
 
 
 def top_terms_per_cluster(frame, km, num_clusters, vocab_frame, terms):
