@@ -35,7 +35,14 @@ class TextAnalysis:
       :return: None
       :side_effects: Stores local dataframe to object
       """
-      return pd.read_csv(csv_file_path, low_memory=False)
+
+      pwd = os.getcwd()
+      os.chdir(os.path.dirname(csv_file_path))
+
+      df = pd.read_csv(os.path.basename(csv_file_path), low_memory=False)
+
+      os.chdir(pwd)
+      return df
 
    def filter_dataframe(self, **kwargs):
       # TODO implement
@@ -46,7 +53,7 @@ class TextAnalysis:
       """
       pass
 
-   def frequency(self, version=None, product_id=None, top=30):
+   def frequency(self, version=None, product_id=None, print_output=True, top=30):
       customer_desc_df = self.get_customer_descriptions(version=version, product_id=product_id)
       vocab = self.create_vocab_frame(customer_desc_df)
       processed_df = self.preprocess(customer_desc_df)
@@ -58,33 +65,38 @@ class TextAnalysis:
       for w in sorted(freq_count, key=freq_count.get, reverse=True):
          sortedFreq.append((w, freq_count[w]))
 
-      print('total words: ' + str(total))
-      for i in range(min(top, len(sortedFreq))):
-         if type(vocab) is not type(None):
-            print('{0:10} : {1:4} \t {2}'.format(sortedFreq[i][0], sortedFreq[i][1],
-                                                 vocab.ix[sortedFreq[i][0]].values.tolist()[:6]))
-         else:
-            print('{0:10} : {1:4}'.format(sortedFreq[i][0], sortedFreq[i][1]))
+      if print_output:
+         print('total words: ' + str(total))
+         for i in range(min(top, len(sortedFreq))):
+            if type(vocab) is not type(None):
+               print('{0:10} : {1:4} \t {2}'.format(sortedFreq[i][0], sortedFreq[i][1],
+                                                    vocab.ix[sortedFreq[i][0]].values.tolist()[:6]))
+            else:
+               print('{0:10} : {1:4}'.format(sortedFreq[i][0], sortedFreq[i][1]))
 
       return vocab, sortedFreq
 
-   def find_error_codes(self, vocab, sortedFreq, df, min_count=7):
-      error_code_map = dict()
+   def group_by_vocab(self, vocab, sortedFreq, df, field='Error_Code', min_count=0):
+      field_map = dict()
 
       for word, count in sortedFreq:
 
          adjacent_terms = set([val[0] for val in vocab.ix[word].get_values()])
+
+         # intital df
          term_df = df[df['Customer_Description'].str.contains(word, case=False, na=False)]
 
+         # concat adjacent terms to initial df
          for adj in adjacent_terms:
             term_df = term_df.add(df[df['Customer_Description'].str.contains(adj, case=False, na=False)])
 
-         error_code_map[word] = term_df.Error_Code.value_counts()
+         field_map[word] = term_df[field].value_counts()
 
          if count < min_count:
             break
 
-      return error_code_map
+      return field_map
+
 
 
 
@@ -241,7 +253,12 @@ class TextAnalysis:
       tokens = re.split(r'\W+', lower_text)
 
       # stem words (e.g {installing, installed, ...} ==> install), exclude stopwords (like "a", "the", "in", etc.)
-      stopwords = nltk.corpus.stopwords.words('english')
+      try:
+         stopwords = nltk.corpus.stopwords.words('english')
+      except LookupError:
+         nltk.download('stopwords')
+         stopwords = nltk.corpus.stopwords.words('english')
+
       stemmer = SnowballStemmer('english')
       stems = [stemmer.stem(t) for t in tokens if t not in stopwords]
 
@@ -366,7 +383,7 @@ class TextAnalysis:
       :return: list of strings -- titles of dataframe columns
       :side_effects: None
       """
-      active_df = df or self.df
+      active_df = df if self.__is_df_set(df) else self.df
       column_strings = [c for c in active_df.columns]
       return column_strings
 
