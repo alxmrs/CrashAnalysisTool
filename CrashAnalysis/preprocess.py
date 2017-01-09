@@ -125,8 +125,8 @@ def ngram(input, N, delim=' '):
 
     ngram_tokens = []
 
-    for start in xrange(len(input)):
-        for n in xrange(1, N+1):
+    for start in range(len(input)):
+        for n in range(1, N+1):
             end = start + n
             if end > len(input):
                 break
