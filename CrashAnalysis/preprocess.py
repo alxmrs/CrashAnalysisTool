@@ -45,7 +45,8 @@ def is_df_set(df):
     :param df: dataframe to test
     :return: boolean
     """
-    return type(df) is not type(None)
+    # type(df) is not type(None)  # old version
+    return isinstance(df, None)
 
 
 def strip_proper_POS(text):
@@ -72,7 +73,7 @@ def tokenize_only(text):
     # exclude stopwords (like "a", "the", "in", etc.)
     try:
         stopwords = nltk.corpus.stopwords.words('english')
-    except LookupError as e:
+    except LookupError:
         nltk.download(u'stopwords')
         stopwords = nltk.corpus.stopwords.words('english')
 
@@ -109,8 +110,33 @@ def tokenize_and_stem(text):
     return stems
 
 
+def ngram(input, N, delim=' '):
+    """
+    ngram-ify a list of tokens.
+    :param input: input list of tokens (list of strings or a string)
+    :param N: length of grams (the 'n' in ngrams)
+    :param delim: Delimiter, must be a string
+    :return: expanded token list of ngrams
+    """
+    # N cannot be greater than the length of the list
+    assert N <= len(input)
+    # Delimiter must be a string
+    assert isinstance(delim, basestring)
+
+    ngram_tokens = []
+
+    for start in xrange(len(input)):
+        for n in xrange(1, N+1):
+            end = start + n
+            if end > len(input):
+                break
+            ngram_tokens.append(delim.join(input[start:end]))
+
+    return ngram_tokens
+
+
 def join_if_list(text_or_list):
-    if type(text_or_list) is type(list()):
+    if isinstance(text_or_list, list):
         return ' '.join(text_or_list)
     return text_or_list
 
