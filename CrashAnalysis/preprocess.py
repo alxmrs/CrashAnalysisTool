@@ -16,7 +16,7 @@ def preprocess(working_df, map=None):
             'Working dataframe not yet created! Try calling get_customer_descriptions_by_version.')
 
     if not map:
-        map = tokenize_and_stem
+        map = tokenize_stem_stop
 
     # remove or fill rows that have no data, i.e NaN
     nonempty_df = fill_empty(working_df)
@@ -61,14 +61,10 @@ def strip_proper_POS(text):
     return without_propernouns
 
 
-def tokenize_only(text):
+def tokenize_and_stop(text):
     text = join_if_list(text)
 
-    # force text to lowercase, remove beginning and trailing whitespace
-    lower_text = text.lower().strip()
-
-    # tokenize text, split by non-word characters, i.e. characters not in [a-zA-Z0-9_]
-    tokens = re.split(r'\W+', lower_text)
+    tokens = lower_and_tokenize(text)
 
     # exclude stopwords (like "a", "the", "in", etc.)
     try:
@@ -82,7 +78,7 @@ def tokenize_only(text):
     return final_tokens
 
 
-def tokenize_and_stem(text):
+def tokenize_stem_stop(text):
     """
     Function that maps string input to a list of tokens. The token list has no stopwords and all words "stemmed",
     or transformed to their root word.
@@ -91,11 +87,7 @@ def tokenize_and_stem(text):
     """
     text = join_if_list(text)
 
-    # force text to lowercase, remove beginning and trailing whitespace
-    lower_text = text.lower().strip()
-
-    # tokenize text, split by non-word characters, i.e. characters not in [a-zA-Z0-9_]
-    tokens = re.split(r'\W+', lower_text)
+    tokens = lower_and_tokenize(text)
 
     # stem words (e.g {installing, installed, ...} ==> install), exclude stopwords (like "a", "the", "in", etc.)
     try:
@@ -108,6 +100,16 @@ def tokenize_and_stem(text):
     stems = [stemmer.stem(t) for t in tokens if t not in stopwords]
 
     return stems
+
+
+def lower_and_tokenize(text):
+    # force text to lowercase, remove beginning and trailing whitespace
+    lower_text = text.lower().strip()
+
+    # tokenize text, split by non-word characters, i.e. characters not in [a-zA-Z0-9_]
+    tokens = re.split(r'\W+', lower_text)
+
+    return tokens
 
 
 def ngram(input, N, delim=' '):
@@ -139,6 +141,10 @@ def join_if_list(text_or_list):
     if isinstance(text_or_list, list):
         return ' '.join(text_or_list)
     return text_or_list
+
+
+def map_and_filter(_input, _map=lambda x: x, _filter=lambda x: True):
+    return [_map(x) for x in _input if _filter(x)]
 
 
 def compose(*functions):
