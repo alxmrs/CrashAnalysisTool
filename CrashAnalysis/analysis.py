@@ -2,7 +2,7 @@ import os
 
 import pandas as pd
 
-from CrashAnalysis.preprocess import preprocess, remove_empty, is_df_set, tokenize_only, tokenize_and_stem
+from CrashAnalysis.preprocess import preprocess, remove_empty, is_df_set, tokenize_and_stop, tokenize_stem_stop
 
 
 class TextAnalysis:
@@ -32,20 +32,6 @@ class TextAnalysis:
 
         os.chdir(pwd)
         return df
-
-    def filter_dataframe(self, df, **kwargs):
-        # TODO test
-        """
-        Generalized method to select the desired row(s) and column(s) from the dataframe. TO BE IMPLEMENTED
-        :param kwargs:
-        :return:
-        """
-        working_df = df.copy()
-
-        for key, value in kwargs:
-            working_df = working_df[working_df[key] == value]
-
-        return working_df
 
     def filter_crash_df(self, df, version=None, product_id=None):
         working_df = df.copy()
@@ -131,10 +117,10 @@ class TextAnalysis:
         nonempty_df = remove_empty(working_df)
 
         for entry in nonempty_df:
-            all_stemmed = tokenize_and_stem(entry)
+            all_stemmed = tokenize_stem_stop(entry)
             total_vocab_stemmed.extend(all_stemmed)
 
-            all_tokens = tokenize_only(entry)
+            all_tokens = tokenize_and_stop(entry)
             total_vocab_tokens.extend(all_tokens)
 
         vocab_frame = pd.DataFrame({'words': total_vocab_tokens}, index=total_vocab_stemmed)
@@ -197,3 +183,20 @@ class TextAnalysis:
         active_df = df if is_df_set(df) else self.df
         column_strings = [c for c in active_df.columns]
         return column_strings
+
+
+def filter_dataframe(df, **kwargs):
+    # TODO test
+    """
+    Generalized method to select the desired row(s) and column(s) from the dataframe. TO BE IMPLEMENTED
+    :param df:
+    :param kwargs:
+    :return:
+    """
+    working_df = df.copy()
+
+    for key, value in kwargs.iteritems():
+        value = value if isinstance(value, list) else [value]
+        working_df = working_df[working_df[str(key)].isin(value)]
+
+    return working_df
