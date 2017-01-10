@@ -6,7 +6,7 @@ from sklearn.externals import joblib
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from CrashAnalysis.preprocess import remove_empty, tokenize_and_stem
+from CrashAnalysis.preprocess import remove_empty, tokenize_stem_stop
 
 
 def vectorize_corpus(working_df):
@@ -16,7 +16,7 @@ def vectorize_corpus(working_df):
     tfidf_vectorizer = TfidfVectorizer(max_features=200000,
                                        stop_words='english',
                                        min_df=1, max_df=1.0,
-                                       use_idf=True, tokenizer=tokenize_and_stem, ngram_range=(1, 4))
+                                       use_idf=True, tokenizer=tokenize_stem_stop, ngram_range=(1, 4))
 
     # transfer dataframe representation to safe list representation
     corpus = []
