@@ -1,6 +1,7 @@
 from __future__ import print_function
 import pandas as pd
 import CrashAnalysis
+from CrashAnalysis.CrashReportParser import extract_zipfiles, xmldocs_to_dataframe
 from CrashAnalysis.LDA import lda, print_topics
 
 
@@ -24,11 +25,11 @@ def main():
 
     if _extract_zipfiles:
         xml_parser = CrashAnalysis.CrashReportParser()
-        xml_parser.extract_zipfiles('C:\\CrashReports\\')
+        extract_zipfiles('C:\\CrashReports\\')
 
     if _parse_xml:
         xml_parser = CrashAnalysis.CrashReportParser()
-        xml_df = xml_parser.xmldocs_to_dataframe('C:\\CrashReports\\')
+        xml_df = xmldocs_to_dataframe('C:\\CrashReports\\')
 
     if _merge_tables:
         xml_df['CrashGUID'] = xml_df['CrashGUID'].apply(lambda x: str(x) + '.zip')
