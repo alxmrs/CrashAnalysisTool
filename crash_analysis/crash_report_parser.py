@@ -6,6 +6,23 @@ from os.path import isfile
 from zipfile import ZipFile
 
 
+def extract_zipfiles(zipfile_dir):
+    """
+    Takes in a directory with zipfiles. Extracts each file and outputs the result to a directory with the same name
+    as the zipfile.
+    :param zipfile_dir: Directory with zipfiles
+    :return: None
+    :size_effects: Creates directories with the contents of the original zipfiles
+    """
+    zipfiles = glob(zipfile_dir + '*.zip')
+
+    for current_file in zipfiles:
+        dest_dir = current_file.replace('.zip', '')
+
+        with ZipFile(current_file, 'r') as zip_ref:
+            zip_ref.extractall(dest_dir)
+
+
 def xmldocs_to_dataframe(xml_dir):
     """
     Converts xml documents to a Pandas Dataframe
@@ -42,26 +59,26 @@ def xmldocs_to_dataframe(xml_dir):
     if not data_tuples:
         raise AssertionError('xml_dir did not point to a directory with xml files! Please specify another path.')
 
-    trees = [(_xml_to_tree(data_tuple[0]), _xml_to_tree(data_tuple[1])) if len(data_tuple) == 2
-             else (_xml_to_tree(data_tuple[0]),)
+    trees = [(__xml_to_tree(data_tuple[0]), __xml_to_tree(data_tuple[1])) if len(data_tuple) == 2
+             else (__xml_to_tree(data_tuple[0]),)
              for data_tuple in data_tuples]
 
     # map xml_strs to single dataframe
-    df = _trees_to_dataframe(trees)
+    df = __trees_to_dataframe(trees)
 
     return df
 
 
-def _trees_to_dataframe(roots):
+def __trees_to_dataframe(roots):
     """
     Converts a list of ElementTree trees into a pd.DataFrame
     :param roots: list of ElementTree roots
     :return: a pd.DataFrame with each root representing a row
     """
-    return pd.DataFrame(list(_parse_etrees(roots)))
+    return pd.DataFrame(list(__parse_etrees(roots)))
 
 
-def _parse_etrees(roots):
+def __parse_etrees(roots):
     """
     A generator function that parses the ElementTree or list of ElementTrees (for multiple files per row) and converts
     it to a dictionary.
@@ -90,7 +107,7 @@ def _parse_etrees(roots):
             yield data_dict
 
 
-def _xml_to_tree(xml_filename):
+def __xml_to_tree(xml_filename):
     """
     Opens an xml file, converts it to a python ElementTree object, returns the root of the tree
     :param xml_filename: xml file to parse
@@ -104,18 +121,4 @@ def _xml_to_tree(xml_filename):
         return tree.getroot()
 
 
-def extract_zipfiles(zipfile_dir):
-    """
-    Takes in a directory with zipfiles. Extracts each file and outputs the result to a directory with the same name
-    as the zipfile.
-    :param zipfile_dir: Directory with zipfiles
-    :return: None
-    :size_effects: Creates directories with the contents of the original zipfiles
-    """
-    zipfiles = glob(zipfile_dir + '*.zip')
 
-    for current_file in zipfiles:
-        dest_dir = current_file.replace('.zip', '')
-
-        with ZipFile(current_file, 'r') as zip_ref:
-            zip_ref.extractall(dest_dir)
