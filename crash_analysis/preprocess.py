@@ -63,7 +63,8 @@ def tokenize_stem_stop(text):
 
     tokens = lower_and_tokenize(text)
 
-    # stem words (e.g {installing, installed, ...} ==> install), exclude stopwords (like "a", "the", "in", etc.)
+    # stem words (e.g {installing, installed, ...} ==> install)
+    # exclude stopwords (like "a", "the", "in", etc.)
     stopwords = __get_stopwords()
     stemmer = SnowballStemmer('english')
     stems = [stemmer.stem(t) for t in tokens if t not in stopwords]
@@ -78,24 +79,24 @@ def tokenize(text, stem=True, stop=True):
     :return: list of processed tokens
     """
     def identity(x): return x
+    def allow_all(x): return True
 
     text = __join_if_list(text)
 
     tokens = lower_and_tokenize(text)
 
-    # stem words (e.g {installing, installed, ...} ==> install), exclude stopwords (like "a", "the", "in", etc.)
+    # exclude stopwords (like "a", "the", "in", etc.)
     stopwords = __get_stopwords()
-
     def in_stopwords(x): return x in stopwords
 
+    # stem words (e.g {installing, installed, ...} ==> install)
     stemmer = SnowballStemmer('english')
-    stems = [stemmer.stem(t) for t in tokens if t not in stopwords]
 
     fin_tokens = __map_and_filter(tokens,
                                   stemmer.stem if stem else identity,
-                                  in_stopwords if stop else bool)
+                                  in_stopwords if stop else allow_all)
 
-    return stems
+    return fin_tokens
 
 
 

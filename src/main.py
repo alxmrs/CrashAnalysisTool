@@ -24,11 +24,11 @@ def main():
     tool = crash_analysis.TextAnalysis(_crash_file)
 
     if _extract_zipfiles:
-        xml_parser = crash_analysis.crash_report_parser()
+        xml_parser = crash_analysis.parser()
         xml_parser.extract_zipfiles('C:\\CrashReports\\')
 
     if _parse_xml:
-        xml_parser = crash_analysis.crash_report_parser()
+        xml_parser = crash_analysis.parser()
         xml_df = xml_parser.xmldocs_to_dataframe('C:\\CrashReports\\')
 
     if _merge_tables:

@@ -143,12 +143,22 @@ def associate_by_keyterms(df, text_column, field='Error_Code', print_output=True
     field_map = dict()
     term_count_map = dict()
 
-    text_df = get_column(filter_dataframe(df, filters), text_column)
+    text_df = get_column(filter_dataframe(df, **filters), text_column)
 
     vocab = create_vocab_frame(text_df)
-    sorted_counts, total = count_entries(text_df)
+
+    processed_df = preprocess(text_df)
+    counts, total = count_entries(processed_df)
+
+    # sort the counts dictionary into list of tuples
+    sorted_counts = []
+
+    for w in sorted(counts, key=counts.get, reverse=True):
+        sorted_counts.append((w, counts[w]))
+
 
     for word, count in sorted_counts:
+
 
         # get set of unstemmed tokens from stemmed token vocabulary
         adjacent_terms = set([val[0] for val in vocab.ix[word].get_values()])
