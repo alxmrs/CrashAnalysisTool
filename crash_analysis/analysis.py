@@ -181,6 +181,7 @@ def associate_by_keyterms(df, text_column, field='Error_Code', print_output=True
         for word, count in sorted_counts:
             print('keyterm: ' + word)
             print(field_map[word][field_map[word] > 0])
+            print('\n')
 
             if count < min_count:
                 break

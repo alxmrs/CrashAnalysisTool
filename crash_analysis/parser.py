@@ -34,6 +34,8 @@ def xmldocs_to_dataframe(xml_dir):
 
     crash_dirs = list()
 
+    files_to_include = ['crashrpt.xml', 'ManagedException.txt']
+
     for (dirpath, dirnames, filenames) in walk(xml_dir):
         crash_dirs.append(dirpath)
 
@@ -42,26 +44,28 @@ def xmldocs_to_dataframe(xml_dir):
     data_tuples = []
 
     for dir in crash_dirs:
-        tmp_list = list()
+        parse_tuple = list()
 
-        crashrpt_path = dir + '\\crashrpt.xml'
-        exception_path = dir + '\\ManagedException.txt'
+        def add_file_to_parse_tuple(filename):
+            file_path = dir + '\\' + filename
 
-        if isfile(crashrpt_path):
-            tmp_list.append(crashrpt_path)
+            if isfile(file_path):
+                parse_tuple.append(file_path)
 
-        if isfile(exception_path):
-            tmp_list.append(exception_path)
+        for file in files_to_include:
+            add_file_to_parse_tuple(file)
 
-        if len(tmp_list) != 0:
-            data_tuples.append(tmp_list)
+        if len(parse_tuple) != 0:
+            data_tuples.append(parse_tuple)
 
     if not data_tuples:
         raise AssertionError('xml_dir did not point to a directory with xml files! Please specify another path.')
 
-    trees = [(__xml_to_tree(data_tuple[0]), __xml_to_tree(data_tuple[1])) if len(data_tuple) == 2
-             else (__xml_to_tree(data_tuple[0]),)
-             for data_tuple in data_tuples]
+    # trees = [(__xml_to_tree(data_tuple[0]), __xml_to_tree(data_tuple[1])) if len(data_tuple) == 2
+    #          else (__xml_to_tree(data_tuple[0]),)
+    #          for data_tuple in data_tuples]
+
+    trees = [[__xml_to_tree(value) for value in data_tuple] for data_tuple in data_tuples]
 
     # map xml_strs to single dataframe
     df = __trees_to_dataframe(trees)
@@ -114,11 +118,16 @@ def __xml_to_tree(xml_filename):
     :return: root of the xml tree
     """
     with open(xml_filename, 'r') as xml_file:
-        # read the data and store it as a tree
-        tree = etree.parse(xml_file)
+        try:
+            # read the data and store it as a tree
+            tree = etree.parse(xml_file)
 
-        # get tree root
-        return tree.getroot()
+            # get tree root
+            return tree.getroot()
+        except:
+            return etree.fromstring('<empty></empty>')  # on error, return empty element tree
+
+
 
 
 
