@@ -1,3 +1,4 @@
 .idea/
 *.pkl
 *.state
+/src/data
