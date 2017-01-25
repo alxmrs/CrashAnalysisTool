@@ -2,3 +2,4 @@
 *.pkl
 *.state
 /src/data
+!src/data/2016070012_jan24_6pm.csv
