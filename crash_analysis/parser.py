@@ -3,6 +3,7 @@ import xml.etree.ElementTree as etree
 from glob import glob
 from os import walk
 from os.path import isfile
+import zipfile
 from zipfile import ZipFile
 
 
@@ -14,13 +15,15 @@ def extract_zipfiles(zipfile_dir):
     :return: None
     :size_effects: Creates directories with the contents of the original zipfiles
     """
-    zipfiles = glob(zipfile_dir + '*.zip')
+    zipfiles = glob(zipfile_dir + '**.zip', recursive=True)
 
     for current_file in zipfiles:
         dest_dir = current_file.replace('.zip', '')
-
-        with ZipFile(current_file, 'r') as zip_ref:
-            zip_ref.extractall(dest_dir)
+        try:
+            with ZipFile(current_file, 'r') as zip_ref:
+                zip_ref.extractall(dest_dir)
+        except zipfile.BadZipfile as e:
+            print('BadZipFile: {0}'.format(current_file))
 
 
 def xmldocs_to_dataframe(xml_dir):

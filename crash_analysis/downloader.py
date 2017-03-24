@@ -15,7 +15,7 @@ DEBUG = True
 def test_query():
 
     now = datetime.datetime.now()
-    start = now + datetime.timedelta(days=-3)
+    start = now + datetime.timedelta(days=-1)
     end = now
 
     download_time_range(start, end)
@@ -26,19 +26,23 @@ def test_query():
 
 def download_time_range(start, end):
     client = Client(**QB)
-    records = client.do_query("{'1'.GTE.'%s'}AND{'1'.LT.'%s'}" % (start.isoformat(), end.isoformat()))
+    records = client.do_query("{'1'.GTE.'%s'}AND{'1'.LT.'%s'}" % (start.isoformat(), end.isoformat()),
+                              structured=True, include_rids=True, columns=[14], path_or_tag='./table/records/record/f/url'
+)
 
     for record in records:
-        download_file(record['payload'], client.ticket)
+        download_file(record['url'], client.ticket)
 
 
 
 
-def download_file(filename, ticket, dest=None):
+def download_file(url, ticket, dest=None):
     if not dest:
         dest = default_dest
 
-    req_url = QB['base_url'] + 'up/' + QB['database'] + '/g/retsm/eq/va/' + filename + '?ticket=' + ticket
+    filename = url.split('/')[-1]
+
+    req_url = url + '?ticket=' + ticket
 
     req.urlretrieve(req_url, dest + filename)
     if(DEBUG):
