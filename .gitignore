@@ -2,5 +2,12 @@
 *.pkl
 *.state
 /src/data
+!/src/data/test_data.csv
+/src/
+!/src/ExampleNotebook.ipynb
+!/src/CrashAnalysisTour.ipynb
 /tmp
-!src/data/2016070012_jan24_6pm.csv
+
+
+.DS_Store
+CrashAnalysis/
