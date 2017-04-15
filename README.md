@@ -30,7 +30,9 @@ In a terminal or command prompt, do the following:
 
 5. Install required python packages: `pip install -r requirements.txt`
 
-6. Start the jupyter notebook: `jupyter notebook`
+6. Open `crash_analysis/private.py` and input the database id, username, password, and app token as strings. See internal ProSeries wiki for details.
+
+7. Start the jupyter notebook: `jupyter notebook`
 
 
 ### References
