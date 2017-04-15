@@ -2,7 +2,7 @@
 
 CAT is a tool for offline crash report analysis. CAT allows faster, more precise queries of ProSeries crash data.  It includes a quickbase crash report downloader, xml parser, Pandas dataframe helper functions, and some text analysis tools.
 
-If you are new to Python 3[<sup>1</sup>](#1), Jupyter notebooks[<sup>2</sup>](#2), or Pandas[<sup>3</sup>](#3), check out the references section.
+If you are new to Python 3[<sup>1</sup>](#references), Jupyter notebooks[<sup>2</sup>](#references), or Pandas[<sup>3</sup>](#references), check out the references section.
 
 After installation, check out `CrashAnalysisTour.ipynb` to see examples of the commands that are available with CAT. Copy and rename `ExampleNotebook.ipynb`
 to create a new crash report.
