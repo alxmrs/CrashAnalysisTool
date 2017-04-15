@@ -4,7 +4,7 @@ CAT is a tool for offline crash report analysis. CAT allows faster, more precise
 
 If you are new to Python 3[<sup>1</sup>](#references), Jupyter notebooks[<sup>2</sup>](#references), or Pandas[<sup>3</sup>](#references), check out the references section.
 
-After installation, check out `CrashAnalysisTour.ipynb` to see examples of the commands that are available with CAT. Copy and rename `ExampleNotebook.ipynb`
+After installation, check out `CrashAnalysisTour.ipynb` to see examples of the commands available with CAT. Copy and rename `ExampleNotebook.ipynb`
 to create a new crash report.
 
 ## Installation
@@ -34,6 +34,7 @@ In a terminal or command prompt, do the following:
 
 7. Start the jupyter notebook: `jupyter notebook`
 
+8. Open `src/ExampleNotebook.ipynb`, copy it, and begin crash reporting!
 
 ### References
 
