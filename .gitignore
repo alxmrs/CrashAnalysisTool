@@ -1,11 +1,14 @@
 .idea/
 *.pkl
 *.state
-/src/data
+/src/data/*.csv
 !/src/data/test_data.csv
-/src/
+
+/src/*.ipynb
+/src/**/*checkpoint.ipynb
 !/src/ExampleNotebook.ipynb
 !/src/CrashAnalysisTour.ipynb
+
 /tmp
 
 crash_analysis/_private.py
