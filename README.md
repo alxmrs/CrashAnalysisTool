@@ -37,11 +37,11 @@ In a terminal or command prompt, do the following:
 
 ### References
 
-1. <a name="#1">[Learn X in Y Minutes where X = Python 3](https://learnxinyminutes.com/docs/python3/)</sup>
+1. <a name="#1">[Learn X in Y Minutes where X = Python 3](https://learnxinyminutes.com/docs/python3/)</sup></a>
 
-2. <a name="#2">[Jupyter Notebook Quickstart](https://jupyter.readthedocs.io/en/latest/content-quickstart.html)</sup>
+2. <a name="#2">[Jupyter Notebook Quickstart](https://jupyter.readthedocs.io/en/latest/content-quickstart.html)</sup></a>
 
-3. <a name="#3">[10 minutes to pandas](http://pandas.pydata.org/pandas-docs/stable/10min.html)</sup>
+3. <a name="#3">[10 minutes to pandas](http://pandas.pydata.org/pandas-docs/stable/10min.html)</sup></a>
 
 ## Latest Changes
 
