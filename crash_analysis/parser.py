@@ -1,8 +1,10 @@
 import pandas as pd
 import xml.etree.ElementTree as etree
 from glob import glob
+import os
 from os import walk
 from os.path import isfile
+import zipfile
 from zipfile import ZipFile
 
 
@@ -14,13 +16,15 @@ def extract_zipfiles(zipfile_dir):
     :return: None
     :size_effects: Creates directories with the contents of the original zipfiles
     """
-    zipfiles = glob(zipfile_dir + '*.zip')
+    zipfiles = glob(zipfile_dir + '**.zip', recursive=True)
 
     for current_file in zipfiles:
         dest_dir = current_file.replace('.zip', '')
-
-        with ZipFile(current_file, 'r') as zip_ref:
-            zip_ref.extractall(dest_dir)
+        try:
+            with ZipFile(current_file, 'r') as zip_ref:
+                zip_ref.extractall(dest_dir)
+        except zipfile.BadZipfile as e:
+            print('BadZipFile: {0}'.format(current_file))
 
 
 def xmldocs_to_dataframe(xml_dir):
@@ -29,41 +33,16 @@ def xmldocs_to_dataframe(xml_dir):
     :param xml_dir: Takes in a directory that has xml files
     :return: A pd.DataFrame with the information from each xml file as a row
     """
-    # map xml files in dir to list of strings
-    # xml_files = glob(xml_dir + '**/crashrpt.xml')
-
-    crash_dirs = list()
-
     files_to_include = ['crashrpt.xml', 'ManagedException.txt']
-
-    for (dirpath, dirnames, filenames) in walk(xml_dir):
-        crash_dirs.append(dirpath)
-
-    crash_dirs.pop(0)  # remove first elem, will be parent dir
 
     data_tuples = []
 
-    for dir in crash_dirs:
-        parse_tuple = list()
-
-        def add_file_to_parse_tuple(filename):
-            file_path = dir + '\\' + filename
-
-            if isfile(file_path):
-                parse_tuple.append(file_path)
-
-        for file in files_to_include:
-            add_file_to_parse_tuple(file)
-
-        if len(parse_tuple) != 0:
-            data_tuples.append(parse_tuple)
+    for (dirpath, dirnames, filenames) in walk(xml_dir):
+        report_group = [os.path.join(dirpath, file) for file in filenames if file in files_to_include]
+        data_tuples.append(report_group)
 
     if not data_tuples:
         raise AssertionError('xml_dir did not point to a directory with xml files! Please specify another path.')
-
-    # trees = [(__xml_to_tree(data_tuple[0]), __xml_to_tree(data_tuple[1])) if len(data_tuple) == 2
-    #          else (__xml_to_tree(data_tuple[0]),)
-    #          for data_tuple in data_tuples]
 
     trees = [[__xml_to_tree(value) for value in data_tuple] for data_tuple in data_tuples]
 

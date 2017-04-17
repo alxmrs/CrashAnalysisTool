@@ -4,7 +4,7 @@ import re
 import nltk
 from nltk import pos_tag, SnowballStemmer
 
-from dataframe_helper import fill_empty
+from crash_analysis.dataframe_helper import fill_empty
 
 
 def preprocess(df, _map=None):
@@ -121,8 +121,8 @@ def ngram(_input, N, skip=None, delim=' ', skip_delim='_'):
     """
     max_len = len(_input)
     # Delimiter must be a string
-    assert isinstance(delim, basestring)
-    assert isinstance(skip_delim, basestring)
+    # assert isinstance(delim, basestring)
+    # assert isinstance(skip_delim, basestring)
 
     ngram_tokens = []
 
@@ -152,8 +152,8 @@ def skipgram(_input, N, skip=None, delim=' ', skip_delim='_'):
     """
     max_len = len(_input)
     # Delimiter must be a string
-    assert isinstance(delim, basestring)
-    assert isinstance(skip_delim, basestring)
+    # assert isinstance(delim, basestring)
+    # assert isinstance(skip_delim, basestring)
 
     ngram_tokens = []
 

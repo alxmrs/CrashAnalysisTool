@@ -94,17 +94,20 @@ class Client(object):
         return string
 
     @classmethod
-    def _parse_records(cls, response):
+    def _parse_records(cls, response, path_or_tag='record'):
         """Parse records in given XML response into a list of dicts."""
         records = []
-        for record_element in response.findall('record'):
+        for record_element in response.findall(path_or_tag):
             record = {}
-            rid = record_element.get('rid')
-            if rid is not None:
-                record['record_id'] = rid
-            for field in record_element:
-                if field.text is not None:
-                    record[field.tag] = field.text
+            if '/' in path_or_tag:
+                record[record_element.tag] = record_element.text
+            else:
+                rid = record_element.get('rid')
+                if rid is not None:
+                    record['record_id'] = rid
+                for field in record_element:
+                    if field.text is not None:
+                        record[field.tag] = field.text
             records.append(record)
         return records
 
@@ -142,10 +145,10 @@ class Client(object):
         if self.app_token:
             request['apptoken'] = self.app_token
 
-        request['encoding'] = 'UTF-8'
+        # request['encoding'] = 'UTF-8'
         data = self._build_request(**request)
         headers = {
-            'Content-Type': 'application/xml',
+            'Content-Type': 'application/xml-urlencoded',
             'Accept-Charset': 'utf-8',
             'QUICKBASE-ACTION': 'API_' + action,
         }
@@ -213,7 +216,7 @@ class Client(object):
 
     def do_query(self, query=None, qid=None, qname=None, columns=None, sort=None,
                  structured=False, num=None, only_new=False, skip=None, ascending=True,
-                 include_rids=False, database=None):
+                 include_rids=False, database=None, path_or_tag='record'):
         """Perform query and return results (list of dicts)."""
         request = {}
         if len([q for q in (query, qid, qname) if q]) != 1:
@@ -247,8 +250,9 @@ class Client(object):
         if include_rids:
             request['includeRids'] = 1
 
+
         response = self.request('DoQuery', database or self.database, request)
-        return self._parse_records(response)
+        return self._parse_records(response, path_or_tag=path_or_tag)
 
     def edit_record(self, rid, fields, named=True, database=None):
         """Update fields on the given record. "fields" is a dict of name:value pairs
