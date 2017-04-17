@@ -51,9 +51,8 @@ def read_csv(csv_file_path):
 
 
 def get_column(df, col_name):
-    ''' Get column of a dataframe'''
+    """ Get column of a dataframe"""
     assert isinstance(df, pd.DataFrame)
-    assert isinstance(col_name, basestring)
 
     return df[col_name]
 
@@ -67,7 +66,7 @@ def filter_dataframe(df, **kwargs):
     """
     working_df = df.copy()
 
-    for key, value in kwargs.iteritems():
+    for key, value in kwargs.items():
         value = value if isinstance(value, list) else [value]
         working_df = working_df[working_df[str(key)].isin(value)]
 

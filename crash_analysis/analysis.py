@@ -1,7 +1,7 @@
 import pandas as pd
 
 from crash_analysis.preprocess import preprocess, tokenize_and_stop, tokenize_stem_stop
-from dataframe_helper import remove_empty, fill_empty, read_csv, get_column, filter_dataframe
+from crash_analysis.dataframe_helper import remove_empty, fill_empty, read_csv, get_column, filter_dataframe
 
 
 class TextAnalysis:
