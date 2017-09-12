@@ -10,7 +10,7 @@ from sklearn.externals import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 from crash_analysis.preprocess import tokenize_stem_stop
-from dataframe_helper import remove_empty
+from crash_analysis import remove_empty
 
 
 def vectorize_corpus(working_df):

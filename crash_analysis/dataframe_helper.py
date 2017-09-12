@@ -1,4 +1,5 @@
 import os
+import six
 
 import pandas as pd
 
@@ -53,6 +54,7 @@ def read_csv(csv_file_path):
 def get_column(df, col_name):
     """ Get column of a dataframe"""
     assert isinstance(df, pd.DataFrame)
+    assert isinstance(col_name, six.string_types)
 
     return df[col_name]
 
