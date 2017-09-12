@@ -97,14 +97,17 @@ def __xml_to_tree(xml_filename):
     :return: root of the xml tree
     """
     with open(xml_filename, 'r') as xml_file:
-        try:
-            # read the data and store it as a tree
-            tree = etree.parse(xml_file)
+        lines = xml_file.readlines()
 
-            # get tree root
-            return tree.getroot()
-        except:
-            return etree.fromstring('<empty></empty>')  # on error, return empty element tree
+    try:
+        xml_unicode = ''.join(lines)
+        xml_str = xml_unicode.encode('ascii', 'ignore')
+
+        root = etree.fromstring(xml_str)
+    except Exception as e:
+        root = etree.fromstring('<empty></empty>')  # on error, return empty element tree
+    finally:
+        return root
 
 
 
