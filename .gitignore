@@ -1,6 +1,7 @@
 .idea/
 *.pkl
 *.state
+*.pyc
 /src/data/*.csv
 !/src/data/test_data.csv
 
