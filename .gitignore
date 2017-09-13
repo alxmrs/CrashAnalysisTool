@@ -13,5 +13,6 @@
 /tmp
 
 crash_analysis/_private.py
+crash_analysis/private.py
 .DS_Store
 CrashAnalysis/
