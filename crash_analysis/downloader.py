@@ -2,7 +2,6 @@ from crash_analysis import QB
 from crash_analysis import Client
 from itertools import repeat
 from multiprocessing import Pool
-import csv
 
 import multiprocessing
 import datetime
@@ -23,24 +22,10 @@ def test_query():
     start = now + datetime.timedelta(days=-1)
     end = now
 
-    cache_ranges(start, end)
     download_time_range(start, end)
 
     if(DEBUG):
        print('\n\n\nFinished.')
-
-def cache_ranges(start, end):
-    """
-    Caches
-    :param start:
-    :param end:
-    :return:
-    """
-    with open(os.path.join(BASE_DIR, 'src' + os.sep + 'download_record.csv'), 'a') as record_csv:
-        csv_writer = csv.writer(record_csv, delimiter=',', )
-        csv_writer.writerow(map(str, [start, end]))
-
-
 
 def download_time_range(start, end, dest=None):
     """
@@ -51,8 +36,6 @@ def download_time_range(start, end, dest=None):
     >>> start = now + datetime.timedelta(hours=-1)
     >>> download_time_range(start, end)
     """
-    print('Beginning download of crashes from within range {0} - {1}.'.format(start, end))
-
     client = Client(**QB)
     records = client.do_query("{'1'.GTE.'%s'}AND{'1'.LT.'%s'}" % (start.isoformat(), end.isoformat()),
                               structured=True, include_rids=True, columns=[14], path_or_tag='./table/records/record/f/url'
