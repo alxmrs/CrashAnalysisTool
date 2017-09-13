@@ -1,6 +1,5 @@
 import functools
 import re
-import six
 
 import nltk
 from nltk import pos_tag, SnowballStemmer
@@ -122,8 +121,8 @@ def ngram(_input, N, skip=None, delim=' ', skip_delim='_'):
     """
     max_len = len(_input)
     # Delimiter must be a string
-    assert isinstance(delim, six.string_types)
-    assert isinstance(skip_delim, six.string_types)
+    # assert isinstance(delim, basestring)
+    # assert isinstance(skip_delim, basestring)
 
     ngram_tokens = []
 
@@ -153,8 +152,8 @@ def skipgram(_input, N, skip=None, delim=' ', skip_delim='_'):
     """
     max_len = len(_input)
     # Delimiter must be a string
-    assert isinstance(delim, six.string_types)
-    assert isinstance(skip_delim, six.string_types)
+    # assert isinstance(delim, basestring)
+    # assert isinstance(skip_delim, basestring)
 
     ngram_tokens = []
 
