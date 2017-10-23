@@ -8,8 +8,11 @@ from crash_analysis.dataframe_helper import fill_empty
 
 
 def preprocess(df, _map=None):
-    """
-    Preprocesses the working dataframe by tokenizing and stemming every word
+    """Preprocesses the working dataframe by tokenizing and stemming every word
+
+    This function is can be overloaded with any type of "_map", or function to apply to every row of the dataframe. 
+    By default, it will use tokenize_stem_stop. 
+    
     :param df: dataframe to pre-process
     :param _map: function to apply to every row of dataframe
     :return: processed dataframe
@@ -29,6 +32,14 @@ def preprocess(df, _map=None):
 
 
 def strip_proper_pos(text):
+    """Return list of words as long as they are not proper nouns
+    
+    Works via part-of-speech (pos) tagging from the natural language tool kit (nltk). 
+    
+    :param text: 
+    :return: list of non-pronoun words. 
+    """
+
     text = __join_if_list(text)
     try:
         tagged = pos_tag(text.split())
@@ -41,6 +52,8 @@ def strip_proper_pos(text):
 
 
 def tokenize_and_stop(text):
+    """Lowers, tokenizes input and removes stop words. """
+
     text = __join_if_list(text)
 
     tokens = lower_and_tokenize(text)
@@ -53,7 +66,8 @@ def tokenize_and_stop(text):
 
 
 def tokenize_stem_stop(text):
-    """
+    """Tokenizes, stems, and removes stop words. 
+    
     Function that maps string input to a list of tokens. The token list has no stopwords and all words "stemmed",
     or transformed to their root word.
     :param text: Input string
@@ -73,7 +87,9 @@ def tokenize_stem_stop(text):
 
 
 def tokenize(text, stem=True, stop=True):
-    """Function that maps string input to a list of tokens. The token list has no stopwords and all words "stemmed",
+    """Generalized tokenization function. 
+    
+    Function that maps string input to a list of tokens. The token list has no stopwords and all words "stemmed",
     or transformed to their root word.
     :param text: Input string
     :return: list of processed tokens
@@ -99,8 +115,9 @@ def tokenize(text, stem=True, stop=True):
     return fin_tokens
 
 
-
 def lower_and_tokenize(text):
+    """lowers input, converts string to list of tokens (delimited by whitespace)."""
+
     # tokenize text, split by non-word characters, i.e. characters not in [a-zA-Z0-9_]
     tokens = re.split(r'\W+', text)
 
@@ -111,8 +128,12 @@ def lower_and_tokenize(text):
 
 
 def ngram(_input, N, skip=None, delim=' ', skip_delim='_'):
-    """
-    ngram-ify a list of tokens.
+    """ngram-ify a list of tokens.
+    
+    ngrams, to summarize, are groups of single words and n-tuples of words. 
+    
+    See https://en.wikipedia.org/wiki/N-gram for reference. 
+    
     :param _input: input list of tokens (list of strings or a string)
     :param N: length of grams (the 'n' in ngrams)
     :param delim: Delimiter, must be a string
@@ -142,8 +163,8 @@ def ngram(_input, N, skip=None, delim=' ', skip_delim='_'):
 
 
 def skipgram(_input, N, skip=None, delim=' ', skip_delim='_'):
-    """
-    ngram-ify a list of tokens.
+    """A variation on ngrams that allows "skips" between tokens. 
+    
     :param _input: input list of tokens (list of strings or a string)
     :param N: length of grams (the 'n' in ngrams)
     :param delim: Delimiter, must be a string
@@ -178,6 +199,7 @@ def skipgram(_input, N, skip=None, delim=' ', skip_delim='_'):
 
 def __get_stopwords():
     """Get english stopwords from Natural Language Toolkit"""
+
     try:
         stopwords = nltk.corpus.stopwords.words('english')
     except LookupError:
@@ -189,6 +211,7 @@ def __get_stopwords():
 
 def __join_if_list(text_or_list):
     """Takes a string or list of strings, returns a string"""
+
     if isinstance(text_or_list, list):
         return ' '.join(text_or_list)
     return text_or_list
@@ -196,12 +219,12 @@ def __join_if_list(text_or_list):
 
 def __map_and_filter(_input, _map=lambda x: x, _filter=lambda x: True):
     """Combine map and filter into one step"""
+
     return [_map(x) for x in _input if _filter(x)]
 
 
 def compose(*functions):
-    """
-    Composes a list of functions.
+    """Composes a list of functions.
 
     For example, compose(f, g, h)(x) ==> f(g(h(x))). Works like pipe.
     :param functions: one or more functions as arguments

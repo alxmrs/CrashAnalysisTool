@@ -1,11 +1,10 @@
-from . import analysis
-from . import parser
-from . import preprocess
+import crash_analysis.analysis
+import crash_analysis.parser
+import crash_analysis.preprocess
 
-from .dataframe_helper import *
+from crash_analysis.dataframe_helper import *
 
-from .private import QUICKBASE as QB
-from .quickbase import Client
+from crash_analysis.private import QUICKBASE as QB
+from crash_analysis.quickbase import Client
 
-from . import downloader
-
+import crash_analysis.downloader

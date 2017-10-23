@@ -4,6 +4,12 @@ import re
 from gensim import models, corpora
 
 
+"""
+The methods in this file should not be regularly used for crash analysis. 
+After investigation, I determined that the problem descriptions from customers are not large enough 
+for effective document clustering or topic models.  
+"""
+
 def lda(preprocessed_df, version=None, product_id=None, num_topics=5, recompute=False, multicore=True):
 
     # create cache model name
@@ -50,5 +56,5 @@ def print_topics(lda_model, num_words=5):
     # topics_matrix = np.array(topics_matrix)
 
     for topic in topics_matrix:
-        print ('topic ' + str(topic[0]))
+        print('topic ' + str(topic[0]))
         print(', '.join([word_tuple[0] + ' : ' + str(word_tuple[1]) for word_tuple in topic[1]]))

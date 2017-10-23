@@ -5,11 +5,15 @@ from crash_analysis.dataframe_helper import remove_empty, fill_empty, read_csv, 
 
 
 class TextAnalysis:
+    """TextAnlysis encapsulates dataframe
+    
+    Useful for importing a CSV file or wrapping an in-memory dataframe.
+    """
     def __init__(self, file_or_dataframe=None):
         self.df = None
         self.working_df = None
 
-        if type(file_or_dataframe) is type('test'):
+        if type(file_or_dataframe) is type('string'):
             self.df = read_csv(file_or_dataframe).copy()
         elif type(file_or_dataframe) is pd.DataFrame:
             self.df = file_or_dataframe
@@ -17,8 +21,8 @@ class TextAnalysis:
             raise TypeError('invalid input type: please enter a string to a filepath or a dataframe')
 
     def __repr__(self):
-        """
-        Convert either the working dataframe (if defined) or starting dataframe to a string. Used for debugging.
+        """Convert either the working dataframe (if defined) or starting dataframe to a string. Used for debugging.
+       
         :return: string version of dataframe
         """
         active_df = self.working_df if not isinstance(self.working_df, type(None)) else self.df
@@ -29,8 +33,7 @@ class TextAnalysis:
 
 
 def stem_frequency(df, column=None, _map=None, print_output=True, top=30, **filters):
-    """
-    Calculate the frequency of stemmed keywords in the corpus
+    """Calculate the frequency of stemmed keywords in the corpus
 
     :param df: source dataframe
     :param column: text column of dataframe
@@ -82,8 +85,7 @@ def stem_frequency(df, column=None, _map=None, print_output=True, top=30, **filt
 
 
 def count_entries(data):
-    """
-    Calculates frequency count of every preprocessed word in corpus. Specifically returns dictionary with counts and a
+    """Calculates frequency count of every preprocessed word in corpus. Specifically returns dictionary with counts and a
     total field, which contains the total words in the dictionary.
 
     :param data: dataframe or list of lists to count word frequency
@@ -126,8 +128,7 @@ def create_vocab_frame(text_df_column):
 
 
 def associate_by_keyterms(df, text_column, field='Error_Code', print_output=True, min_count=20, **filters):
-    """
-    Groups histograms (value_counts) of column values of a dataframe by keyterms. For example, you are able to find out
+    """Groups histograms (value_counts) of column values of a dataframe by keyterms. For example, you are able to find out
     which stack traces are most commonly associated with each keyterm.
 
     :param df: source dataframe
@@ -156,14 +157,12 @@ def associate_by_keyterms(df, text_column, field='Error_Code', print_output=True
     for w in sorted(counts, key=counts.get, reverse=True):
         sorted_counts.append((w, counts[w]))
 
-
     for word, count in sorted_counts:
-
 
         # get set of unstemmed tokens from stemmed token vocabulary
         adjacent_terms = set([val[0] for val in vocab.ix[word].get_values()])
 
-        # Concate dataframes that contain the adjacent terms into one dataframe
+        # Concat dataframes that contain the adjacent terms into one dataframe
         adjacent_dfs = [df[fill_empty(text_df).str.contains(term, case=False, na=False)] for term in adjacent_terms]
         term_df = pd.concat(adjacent_dfs)
 

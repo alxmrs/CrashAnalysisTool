@@ -1,8 +1,5 @@
-from __future__ import print_function
-
 import os
 import re
-
 
 from sklearn.cluster import KMeans
 from sklearn.externals import joblib
@@ -10,10 +7,20 @@ from sklearn.externals import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 from crash_analysis.preprocess import tokenize_stem_stop
-from dataframe_helper import remove_empty
+from crash_analysis.dataframe_helper import remove_empty
 
+"""
+The methods in this file should not be regularly used for crash analysis. 
+After investigation, I determined that the problem descriptions from customers are not large enough 
+for effective document clustering or topic models.  
+"""
 
 def vectorize_corpus(working_df):
+    """ Create features from problem description data frame for kmeans clustering. 
+    
+    :param working_df: 
+    :return: 
+    """
     nonempty_df = working_df = remove_empty(working_df)
 
     # create term-frequency inverse-document frequency vectorizer object
@@ -39,6 +46,7 @@ def vectorize_corpus(working_df):
 
 
 def train_or_load_kmeans(tfidf_mx, k=5, recompute=False):
+    """load/train kmeans model. """
 
     cache_model_name = 'doc_cluster_k{0}.pkl'.format(k)
 
@@ -54,6 +62,7 @@ def train_or_load_kmeans(tfidf_mx, k=5, recompute=False):
 
 
 def top_terms_per_cluster(frame, km, num_clusters, vocab_frame, terms):
+    """output top terms in each cluster"""
     print("Top terms per cluster:")
     print()
 
@@ -77,28 +86,3 @@ def top_terms_per_cluster(frame, km, num_clusters, vocab_frame, terms):
 
     print()
     print()
-
-# mx, terms = tool.vectorize_corpus()
-#
-#
-#
-# compute = True
-# n_custers = 7
-# if compute:
-#     km = tool.kmeans(mx, n_custers)
-# else:
-#     km = joblib.load('doc_cluster_k{0}.pkl'.format(n_custers))
-#
-# clusters = km.labels_.tolist()
-# cluster_lists = [[x] for x in clusters]
-#
-# print(tool.frequency_count(cluster_lists))
-#
-# new_df = tool.label_dataframe_with_clusters(clusters)
-#
-# print(new_df['Cluster'].value_counts())
-#
-# # tool.label_frame_with_clusters(clusters)
-#
-# top_terms_per_cluster(new_df, km, n_custers, vocab_frame, terms)
-

@@ -9,7 +9,8 @@ from zipfile import ZipFile
 
 
 def extract_zipfiles(zipfile_dir):
-    """
+    """Extract all the zipfiles in a directory.
+    
     Takes in a directory with zipfiles. Extracts each file and outputs the result to a directory with the same name
     as the zipfile.
     :param zipfile_dir: Directory with zipfiles
@@ -28,8 +29,11 @@ def extract_zipfiles(zipfile_dir):
 
 
 def xmldocs_to_dataframe(xml_dir):
-    """
-    Converts xml documents to a Pandas Dataframe
+    """Converts xml documents to a Pandas Dataframe.
+    
+    Makes use of all the private helper functions in the file.
+    Includes specified list of XML files ('crashrpt.xml' and 'ManagedException.txt'). 
+
     :param xml_dir: Takes in a directory that has xml files
     :return: A pd.DataFrame with the information from each xml file as a row
     """
@@ -53,8 +57,10 @@ def xmldocs_to_dataframe(xml_dir):
 
 
 def __trees_to_dataframe(roots):
-    """
-    Converts a list of ElementTree trees into a pd.DataFrame
+    """Converts a list of ElementTree trees into a pd.DataFrame
+    
+    Helper function to convert XML trees into a single dataframe. 
+    
     :param roots: list of ElementTree roots
     :return: a pd.DataFrame with each root representing a row
     """
@@ -62,7 +68,8 @@ def __trees_to_dataframe(roots):
 
 
 def __parse_etrees(roots):
-    """
+    """Parse a list of XML trees into a dictionary. 
+    
     A generator function that parses the ElementTree or list of ElementTrees (for multiple files per row) and converts
     it to a dictionary.
     :param roots: roots to process
@@ -91,7 +98,8 @@ def __parse_etrees(roots):
 
 
 def __xml_to_tree(xml_filename):
-    """
+    """Convert xml file to a Tree representation (etree).
+    
     Opens an xml file, converts it to a python ElementTree object, returns the root of the tree
     :param xml_filename: xml file to parse
     :return: root of the xml tree
