@@ -22,7 +22,7 @@ In a terminal or command prompt, do the following:
 
 1. Download this repository: `git clone https://github.intuit.com/arosengarten/CrashAnalysisTool.git`
 
-2. Go inside the directory: `cd CrashAnalysis`
+2. Go inside the directory: `cd CrashAnalysis`.
 
 3. Create a virtual environment: `conda create --name cat35 python=3.5`
 
@@ -30,7 +30,7 @@ In a terminal or command prompt, do the following:
 
 5. Install required python packages: `pip install -r requirements.txt`
 
-6. Open `crash_analysis/private.py` and input the database id, username, password, and app token as strings. See internal ProSeries wiki for details.
+6. Open or create `crash_analysis/private.py` and input the database id, username, password, and app token as strings. See internal ProSeries wiki for details.
 
 7. Start the jupyter notebook: `jupyter notebook`
 
