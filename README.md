@@ -13,28 +13,47 @@ to create a new crash report.
 
 Python 3 is required (3.5+ preferred). We recommend installing python with [Anaconda](https://www.continuum.io/downloads).
 
-[PyCharm](http://jetbrains.com/pycharm) or the [Visual Studio Python Plugin](https://github.com/Microsoft/PTVS/) is recommended, but not required.
+[PyCharm](http://jetbrains.com/pycharm) or the [Visual Studio Python Plugin](https://github.com/Microsoft/PTVS/) is recommended for editing the `crash_analysis` library, but not required.
 
-Git is also required.
+Git is also required for editing the `crash_analysis` library.
 
 ### Set Up
 In a terminal or command prompt, do the following:
 
-1. Download this repository: `git clone https://github.intuit.com/arosengarten/CrashAnalysisTool.git`
+1. Download this repository: `git clone https://github.intuit.com/arosengarten/CrashAnalysisTool.git`. 
+If you don't have `git` installed, this can be downloaded from the repo webpage by clicking the "Clone or Download" button and selecting "Download Zip". 
+However, if you don't use git/clone the repo, you will not be able to make lasting changes to the tool. 
 
-2. Go inside the directory: `cd CrashAnalysis`.
+2. Go inside the directory: `cd CrashAnalysisTool`. If you downloaded the zip file, extract it and go inside that directory. 
 
-3. Create a virtual environment: `conda create --name cat35 python=3.5`
+3. (Recommended) Create a virtual environment: `conda create --name cat35 python=3.5`. Otherwise, ensure that Python 3.5+ is your default python installation. 
 
-4. Activate the virtual environment (of python 3.5): `source activate cat35` for OSX/Linux, or `activate cat35` for Windows.
+4. (Recommended) Activate the virtual environment (of python 3.5): `source activate cat35` for OSX/Linux, or `activate cat35` for Windows.
 
 5. Install required python packages: `pip install -r requirements.txt`
 
 6. Open or create `crash_analysis/private.py` and input the database id, username, password, and app token as strings. See internal ProSeries wiki for details.
 
-7. Start the jupyter notebook: `jupyter notebook`
+#### (Optional) Developer Setup
 
-8. Open `src/ExampleNotebook.ipynb`, copy it, and begin crash reporting!
+For contributing to the `crash_analysis` library, it is recommended that you install extra python packages. 
+Activate your cat python environment (step 4 in Set Up) and from the `CrashAnalysisTool` directory, run the following commands: 
+
+```bash
+pip install -r crash_analysis/module_requirements.txt
+pip install -r crash_analysis/dev_requirements.txt
+```
+
+- `module_requirements.txt` include packages such as sci-kit learn and gensim, which are necessary for the machine-learning modules in the library (not currently publicly accessible). 
+- `dev_requirements.txt` include packages that promote higher code quality, namely a python linter (flake8/hacking) and type checker (mylang).  
+
+## Creating crash reports
+
+1. Open a command prompt or terminal inside the `CrashAnalysisTool` directory on your machine. 
+
+2. In the command prompt or terminal, start the jupyter notebook: `jupyter notebook`
+
+3. A browser window should open up. Open `src/ExampleNotebook.ipynb`, **copy it** (File > Make A Copy...), and begin crash reporting!
 
 ### References
 
@@ -45,6 +64,11 @@ In a terminal or command prompt, do the following:
 3. <a name="#3">[10 minutes to pandas](http://pandas.pydata.org/pandas-docs/stable/10min.html)</sup></a>
 
 ## Latest Changes
+
+#### Oct 26, 2017
+- Revised documentation (this readme, docstrings in lib, and explicit comments in the example notebook)
+- Added types and doctests to a few modules. 
+- Added dev requirements
 
 #### April 14, 2017
 - Added quickbase downloader that can download crashed by time range in parallel
