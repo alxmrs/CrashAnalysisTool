@@ -24,6 +24,7 @@ def extract_zipfiles(zipfile_dir: PathStr) -> None:
     for current_file in zipfiles:
         dest_dir = current_file.replace('.zip', '')
         try:
+            # Skip extraction if file is already extracted!
             if not os.path.isdir(dest_dir):
                 with ZipFile(current_file, 'r') as zip_ref:
                     zip_ref.extractall(dest_dir)
