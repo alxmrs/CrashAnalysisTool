@@ -2,14 +2,20 @@ import pandas as pd
 
 from crash_analysis.preprocess import preprocess, tokenize_and_stop, tokenize_stem_stop
 from crash_analysis.dataframe_helper import remove_empty, fill_empty, read_csv, get_column, filter_dataframe
+from typing import Union, Callable, Any, Optional, Tuple, List
+from crash_analysis.types import PathStr, T
 
+"""
+TODO: this file needs refactoring. 
+"""
 
 class TextAnalysis:
     """TextAnlysis encapsulates dataframe
     
+    Kind of deprecated...
     Useful for importing a CSV file or wrapping an in-memory dataframe.
     """
-    def __init__(self, file_or_dataframe=None):
+    def __init__(self, file_or_dataframe: Union[pd.DataFrame, PathStr] = None) -> None:
         self.df = None
         self.working_df = None
 
@@ -20,7 +26,7 @@ class TextAnalysis:
         else:
             raise TypeError('invalid input type: please enter a string to a filepath or a dataframe')
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Convert either the working dataframe (if defined) or starting dataframe to a string. Used for debugging.
        
         :return: string version of dataframe
@@ -32,11 +38,17 @@ class TextAnalysis:
         self.working_df = None
 
 
-def stem_frequency(df, column=None, _map=None, print_output=True, top=30, **filters):
+def stem_frequency(df: pd.DataFrame,
+                   column: Optional[str] = None,
+                   _map: Optional[Callable[[T], Any]] = None,
+                   print_output: bool = True,
+                   top: int = 30,
+                   **filters) -> Tuple[pd.DataFrame, List[Tuple[str, int]], int]:
     """Calculate the frequency of stemmed keywords in the corpus
 
     :param df: source dataframe
     :param column: text column of dataframe
+    :param _map: Used to preproces the dataframe before calculating stem frequency. 
     :param print_output: formatted printing of frequency of stems, along with example source tokens
     :param top: print only the top n items (default: 30)
     :param filters: use to filter rows out of dataframe. list of arguments in Key=Value format.
@@ -48,15 +60,12 @@ def stem_frequency(df, column=None, _map=None, print_output=True, top=30, **filt
 
     # Get a text column from the dataframe, filtering the proper rows
     if column:
-        text_df = get_column(filter_dataframe(df, filters), column)
+        text_df = get_column(filter_dataframe(df, **filters), column)
     else:
         text_df = df
 
     # Match stemmed words to a list of their unstemmed tokens
-    if _map:
-        vocab = None
-    else:
-        vocab = create_vocab_frame(text_df)
+    vocab = create_vocab_frame(text_df)
 
     # apply default preprocessing to the text column
     processed_df = preprocess(text_df, _map=_map)
@@ -73,13 +82,13 @@ def stem_frequency(df, column=None, _map=None, print_output=True, top=30, **filt
     if print_output:
         print('total words: ' + str(total))
         for i in range(min(top, len(sorted_counts))):
-            if not isinstance(vocab, type(None)):
-                print('{0:10} \t: {1:4} \t {2}'.format(sorted_counts[i][0],
-                                                             sorted_counts[i][1],
-                                                             vocab.ix[sorted_counts[i][0]].values.tolist()[:6]))
-            else:
+            if _map:
                 print('{0:10} \t: {1:4}'.format(sorted_counts[i][0],
-                                                       sorted_counts[i][1]))
+                                                sorted_counts[i][1]))
+            else:
+                print('{0:10} \t: {1:4} \t {2}'.format(sorted_counts[i][0],
+                                                       sorted_counts[i][1],
+                                                       vocab.ix[sorted_counts[i][0]].values.tolist()[:6]))
 
     return sorted_counts, total, vocab
 
@@ -108,7 +117,7 @@ def count_entries(data):
     return freq_count, total
 
 
-def create_vocab_frame(text_df_column):
+def create_vocab_frame(text_df_column: pd.DataFrame) -> pd.DataFrame:
     """Create dataframe mapping stemmed token to list of unstemmed tokens from a column dataframe of text data"""
     total_vocab_stemmed = []
     total_vocab_tokens = []
@@ -127,7 +136,7 @@ def create_vocab_frame(text_df_column):
     return vocab_frame
 
 
-def associate_by_keyterms(df, text_column, field='Error_Code', print_output=True, min_count=20, **filters):
+def associate_by_keyterms(df: pd.DataFrame, text_column: str, field='Error_Code', print_output=True, min_count=20, **filters):
     """Groups histograms (value_counts) of column values of a dataframe by keyterms. For example, you are able to find out
     which stack traces are most commonly associated with each keyterm.
 

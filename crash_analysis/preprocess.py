@@ -1,13 +1,12 @@
 import functools
 import re
-import nltk
-from nltk import pos_tag, SnowballStemmer
-from typing import List, Sequence, TypeVar, Callable, Optional, Union, Any
-from crash_analysis.dataframe_helper import fill_empty
-import pandas as pd
 
-T = TypeVar('T')
-K = TypeVar('K')
+import nltk
+import pandas as pd
+from nltk import pos_tag, SnowballStemmer
+from typing import List, Sequence, MutableSequence, Callable, Optional, Union, Any
+from crash_analysis.dataframe_helper import fill_empty
+from crash_analysis.types import T
 
 
 def preprocess(df: pd.DataFrame, _map: Optional[Callable[[T], Any]] = None) -> pd.DataFrame:
@@ -99,7 +98,7 @@ def tokenize_stem_stop(text: Union[List[str], str]):
     return stems
 
 
-def tokenize(text: Union[List[str], str], stem: bool = True, stop: bool = True) -> List[str]:
+def tokenize(text: Union[List[str], str], stem: bool = True, stop: bool = True) -> Sequence[Any]:
     """Generalized tokenization function. 
     
     Function that maps string input to a list of tokens. The token list has no stopwords and all words "stemmed",
@@ -263,9 +262,9 @@ def __join_if_list(text_or_list: Union[List[str], str]) -> str:
     return text_or_list
 
 
-def __map_and_filter(_input: Sequence[T],
+def __map_and_filter(_input: MutableSequence[T],
                      _map: Callable[[T], Any] = lambda x: x,
-                     _filter: Callable[[T], bool] = lambda x: True) -> Sequence[Any]:
+                     _filter: Callable[[T], bool] = lambda x: True) -> MutableSequence[Any]:
     """Combine map and filter into one step
     
     :param _input: list of data

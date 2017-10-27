@@ -1,9 +1,10 @@
 from crash_analysis import QB
 from crash_analysis import Client
+from crash_analysis.types import PathStr
 from itertools import repeat
 from multiprocessing import Pool
 from pathlib import Path
-
+from typing import Optional, cast
 import multiprocessing
 import datetime
 import urllib.request as req
@@ -12,25 +13,14 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-default_dest = os.path.join(BASE_DIR, 'tmp' + os.sep)
+default_dest = cast(PathStr, os.path.join(BASE_DIR, 'tmp' + os.sep))
 
 DEBUG = True
 
 optimal_thread_count = multiprocessing.cpu_count() + 1
 
-def test_query():
-    """ Method to test download over time range"""
 
-    now = datetime.datetime.now()
-    start = now + datetime.timedelta(days=-1)
-    end = now
-
-    download_time_range(start, end)
-
-    if(DEBUG):
-       print('\n\n\nFinished.')
-
-def download_time_range(start, end, dest=None):
+def download_time_range(start: datetime.datetime, end: datetime.datetime, dest: Optional[PathStr] = None) -> None:
     """Downloads all crashes from quickbase from the start time, end time, to the specified directory destination.
 
     Example:
@@ -51,7 +41,7 @@ def download_time_range(start, end, dest=None):
         pool.starmap(download_file, zip(map(lambda r: r['url'], records), repeat(client.ticket), repeat(dest)))
 
 
-def download_file(url, ticket, dest=None):
+def download_file(url: str, ticket: str, dest: Optional[PathStr] = None) -> None:
     """Download a single file from quickbase 
     
     Will skip downloading the file if it already exists on the file system. 
@@ -59,7 +49,10 @@ def download_file(url, ticket, dest=None):
     Set DEBUG to true to see download status in stdout. 
     """
     if not dest:
-        dest = default_dest
+        dest =  default_dest
+
+    if not os.path.isdir(dest):
+        os.mkdir(dest)
 
     filename = url.split('/')[-1]
 
@@ -77,11 +70,6 @@ def download_file(url, ticket, dest=None):
         print('Started download of ' + filename)
 
 
-"""
-Run this file to test the downloader
-"""
 if __name__ == '__main__':
-    # import doctest
-    # doctest.testmod()
-
-    test_query()
+    import doctest
+    doctest.testmod()

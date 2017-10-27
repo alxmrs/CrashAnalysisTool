@@ -2,7 +2,7 @@ import os
 
 import pandas as pd
 from typing import List, Any
-
+from crash_analysis.types import PathStr
 
 def remove_empty(df: pd.DataFrame):
     """Remove rows with any empty (NaN/None) values
@@ -103,7 +103,7 @@ def get_columns(df: pd.DataFrame) -> List[str]:
     return [c for c in df.columns]
 
 
-def read_csv(csv_file_path: str) -> pd.DataFrame:
+def read_csv(csv_file_path: PathStr) -> pd.DataFrame:
     """
     Reads a CSV file, converts to a pandas dataframe object.
     :param csv_file_path: text path to csv file to read
