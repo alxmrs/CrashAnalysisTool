@@ -55,7 +55,7 @@ pip install -r crash_analysis/dev_requirements.txt
 
 3. A browser window should open up. Open `src/ExampleNotebook.ipynb`, **copy it** (File > Make A Copy...), and begin crash reporting!
 
-### References
+## References
 
 1. <a name="#1">[Learn X in Y Minutes where X = Python 3](https://learnxinyminutes.com/docs/python3/)</sup></a>
 
@@ -75,6 +75,20 @@ pip install -r crash_analysis/dev_requirements.txt
 - Curated ExampleNotebook and CrashAnalysisTour
 - Completely upgraded to Python 3
 - (Finally) started writing documentation
+
+## TODO
+- [ ] Finish adding type annotations
+- [ ] Use hacking/flake8 to lint project, make sure it adheres to community style guide
+- [ ] Refactor/Gut `analysis.py`, which hasn't been used in a while in the first place. 
+- [ ] Add unit tests (specifically to `parser.py`, `downloader.py`, and maybe `analysis.py`)
+- [ ] Finish adding doctests (specifically to `preprocess.py`). `dataframe_helper.py` is fully doctested. 
+- [ ] (optional) Create sphinx documentation for project (put in root/docs/ directory)
+- [ ] (optional) Reorganize modules into subpackages (e.g. `parser.py`, `quickbase.py`, and `downloader.py` could go into
+a download sub-package)
+- [ ] (reach) Rehash document clustering investigation (see `kmeans.py` and `lda.py`). Maybe with more time and effort, 
+ML could be useful for crash analysis. 
+- [ ] (reach) Refactor downloader subpackage to live update data into an AWS database. Refactor notebooks to get data from 
+AWS DB instead of manually downloading files. 
 
 
 
